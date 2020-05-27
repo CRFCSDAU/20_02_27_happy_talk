@@ -152,7 +152,7 @@ There are also some other questions for example whether attendance rates (which 
     facet_wrap(~arm) +
     scale_color_viridis("", discrete = TRUE, end = 0.5) +
     xlab("") +
-    ylab("PLS-5 ES")
+    ylab("PLS-5 Total")
 
 ```
 
@@ -165,7 +165,7 @@ There are also some other questions for example whether attendance rates (which 
     scale_fill_viridis("", discrete = TRUE, end = 0.5) +
     scale_color_viridis("", discrete = TRUE, end = 0.5) +
     ylab("Density") +
-    xlab("PLS-5 ES")
+    xlab("PLS-5 Total")
 
 ```
 
