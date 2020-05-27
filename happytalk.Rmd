@@ -1,0 +1,222 @@
+---
+title: ''
+author: ''
+date: ''
+output: 
+  html_document:
+    df_print: paged
+    keep_md: true
+  word_document:
+    reference_docx: style.1.docx
+---
+
+```{r setup, include = FALSE}
+
+  knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, 
+                        fig.width  = 6 * 1.67, fig.height = 6)
+
+  load("data.RData")
+  
+  library(tidyverse)
+  library(viridis)
+  library(flextable)
+  library(sjPlot)
+  library(sjmisc)
+
+```
+
+**Original request:**
+
+I have attached a rough draft of the methodology for the Happy Talk study with some research questions which hopefully will help make sense of the data. 
+I have put in the following questions and highlighted the outcomes. In some places there is an option to use just one outcome or to add in another. I don’t know if our numbers allow for a second outcome in some of these places, so statistically you might not advise it. 
+
+Research questions – Following completion of the Happy Talk programme
+
+- Based on the PLS-5 composite scores, did the receptive and or expressive language of children from disadvantaged areas improve, when compared to a control group over the same period of time? PLS-5 outcomes
+
+- Using the PedsQL and CHU9D, did children’s quality of life improve compared to a control group of children from similar backgrounds, who did not complete the programme? PEDsQL total score and then composites?
+
+- Using the Detailed Code of Responsiveness, did parents increase their level of responsiveness when playing with their children, compared to a control group of parents who did not complete the programme? Rate per minute outcome and total number as a possible second for PedsQL
+
+- When measured using the Communication Supporting Classroom Observation Tool (CSCOT) has the oral language environment of preschools increased when compared to control preschools in similar areas catering for a similar demographic. CSCOT score outcome
+```{r}
+
+
+
+```
+
+There are also some other questions for example whether attendance rates (which I think were quite poor) had any impact on the child language or parent video outcomes – but again I know that some of this will depend on what is possible given our numbers.
+
+# PLS-5
+
+- Based on the PLS-5 composite scores, did the receptive and or expressive language of children from disadvantaged areas improve, when compared to a control group over the same period of time? PLS-5 outcomes
+
+## PLS-5-AC
+
+```{r pls5_ac_line}
+
+  ggplot(long, aes(y = pls5_ac, x = time, group = code, color = arm)) +
+    geom_line() +
+    facet_wrap(~arm) +
+    scale_color_viridis("", discrete = TRUE, end = 0.5) +
+    xlab("") +
+    ylab("PLS-5 AC")
+
+```
+
+```{r pls5_ac_density}
+
+  ggplot(long, aes(x = pls5_ac, fill = time, color = time)) +
+    geom_density(alpha = 0.5, color = "black") +
+    geom_rug(size = 2, alpha = 0.5) +
+    facet_wrap(~arm, nrow = 2) +
+    scale_fill_viridis("", discrete = TRUE, end = 0.5) +
+    scale_color_viridis("", discrete = TRUE, end = 0.5) +
+    ylab("Density") +
+    xlab("PLS-5 AC")
+
+```
+```{r pls5_ac_models}
+
+# baseline adjusted
+  pls5_ac_m1 <- lm(pls5_ac_post ~ arm + center(pls5_ac_pre), 
+                   data = data) 
+# Plus age and slt
+  pls5_ac_m2 <- lm(pls5_ac_post ~ arm + center(pls5_ac_pre) + 
+                     center(age_in_months) + previous_slt_involvement, 
+                   data = data) 
+ 
+  tab_model(
+    list(pls5_ac_m1, pls5_ac_m2),
+    dv.labels = c("Basline adjusted", "Covariate adjusted"),
+    pred.labels = c("Intercept", "Active (vs Control)", "Baseline PLS-5-AC", 
+                    "Age (m)", "Previous SLT (vs None)")
+    )
+  
+
+```
+
+## PLS-5-ES
+
+```{r pls5_es_line}
+
+  ggplot(long, aes(y = pls5_es, x = time, group = code, color = arm)) +
+    geom_line() +
+    facet_wrap(~arm) +
+    scale_color_viridis("", discrete = TRUE, end = 0.5) +
+    xlab("") +
+    ylab("PLS-5 ES")
+
+```
+
+```{r pls5_es_density}
+
+  ggplot(long, aes(x = pls5_es, fill = time, color = time)) +
+    geom_density(alpha = 0.5, color = "black") +
+    geom_rug(size = 2, alpha = 0.5) +
+    facet_wrap(~arm, nrow = 2) +
+    scale_fill_viridis("", discrete = TRUE, end = 0.5) +
+    scale_color_viridis("", discrete = TRUE, end = 0.5) +
+    ylab("Density") +
+    xlab("PLS-5 ES")
+
+```
+
+```{r pls5_es_models}
+
+# baseline adjusted
+  pls5_es_m1 <- lm(pls5_es_post ~ arm + center(pls5_es_pre), 
+                   data = data) 
+# Plus age and slt
+  pls5_es_m2 <- lm(pls5_es_post ~ arm + center(pls5_es_pre) + 
+                     center(age_in_months) + previous_slt_involvement, 
+                   data = data) 
+ 
+  tab_model(
+    list(pls5_es_m1, pls5_es_m2),
+    dv.labels = c("Basline adjusted", "Covariate adjusted"),
+    pred.labels = c("Intercept", "Active (vs Control)", "Baseline PLS-5-ES", 
+                    "Age (m)", "Previous SLT (vs None)")
+    )
+  
+
+```
+
+
+## PLS-5-Total
+
+```{r pls5_to_line}
+
+  ggplot(long, aes(y = pls5_to, x = time, group = code, color = arm)) +
+    geom_line() +
+    facet_wrap(~arm) +
+    scale_color_viridis("", discrete = TRUE, end = 0.5) +
+    xlab("") +
+    ylab("PLS-5 ES")
+
+```
+
+```{r pls5_to_density}
+
+  ggplot(long, aes(x = pls5_to, fill = time, color = time)) +
+    geom_density(alpha = 0.5, color = "black") +
+    geom_rug(size = 2, alpha = 0.5) +
+    facet_wrap(~arm, nrow = 2) +
+    scale_fill_viridis("", discrete = TRUE, end = 0.5) +
+    scale_color_viridis("", discrete = TRUE, end = 0.5) +
+    ylab("Density") +
+    xlab("PLS-5 ES")
+
+```
+
+```{r pls5_to_models}
+
+# baseline adjusted
+  pls5_to_m1 <- lm(pls5_to_post ~ arm + center(pls5_to_pre), 
+                   data = data) 
+# Plus age and slt
+  pls5_to_m2 <- lm(pls5_to_post ~ arm + center(pls5_to_pre) + 
+                     center(age_in_months) + previous_slt_involvement, 
+                   data = data) 
+ 
+  tab_model(
+    list(pls5_to_m1, pls5_to_m2),
+    dv.labels = c("Basline adjusted", "Covariate adjusted"),
+    pred.labels = c("Intercept", "Active (vs Control)", "Baseline PLS-5-ES", 
+                    "Age (m)", "Previous SLT (vs None)")
+    )
+  
+```
+
+
+```{r publication_qualityplots}
+
+# ggsave("XXX", device = "pdf", dpi = 600)
+
+```
+
+```{r if_html, eval = knitr::opts_knit$get("rmarkdown.pandoc.to") == "html"}
+
+# use flextable (works for MD files on github too)
+
+```
+
+```{r if_word, eval = !knitr::opts_knit$get("rmarkdown.pandoc.to") == "html"}
+
+# use kable
+
+```
+
+```{r code_book}
+
+  print(summarytools::dfSummary(data), method = "render")
+
+```
+
+```{r sysinfo}
+
+  DescTools::SysInfo()
+
+```
+
+
