@@ -1,0 +1,148 @@
+---
+title: ''
+author: ''
+date: ''
+output: 
+  html_document:
+    df_print: paged
+    keep_md: true
+  word_document:
+    reference_docx: style.1.docx
+---
+
+```{r setup, include = FALSE}
+
+  knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, 
+                        fig.width  = 6 * 1.67, fig.height = 6)
+
+  load("data.RData")
+  
+  libraries <- c("descr", "tidyverse", "viridis")
+  
+  install.packages(libraries)
+  
+  library(descr)
+  library(tidyverse)
+  library(viridis)
+  library(flextable)
+
+```
+
+```{r publication_qualityplots}
+
+  ggsave("XXX", device = "pdf", dpi = 600)
+
+```
+
+```{r if_html, eval = knitr::opts_knit$get("rmarkdown.pandoc.to") == "html"}
+
+# use flextable (works for MD files on github too)
+
+```
+
+```{r if_word, eval = !knitr::opts_knit$get("rmarkdown.pandoc.to") == "html"}
+
+# use kable
+
+```
+
+```{r code_book}
+
+  print(summarytools::dfSummary(data), method = "render")
+
+```
+
+```{r sysinfo}
+
+  DescTools::SysInfo()
+
+```
+
+
+
+This is a descent 2 by 2 table
+```{r}
+
+  t <- table(x, y)
+
+  pander(descr::CrossTable(t, prop.t = FALSE, prop.chisq = FALSE, chisq = FALSE))
+
+```
+
+Evalaluate based on doc type
+```{r table1_describe, eval = knitr::opts_knit$get("rmarkdown.pandoc.to") == "Word"}
+
+  data_frame(Variable       = name.1(descript),
+             N              = n.miss(descript),
+             "Mean SD"      = summary.1(descript),
+             "Median [IQR]" = med.iqr(descript),
+             "(Min, Max)"   = min.max(descript)) %>% knitr::kable()
+  
+```
+
+```{r table1_describe}
+
+
+  descript <- select(test, sex, age, stage, cancer.groups, sex,
+                     current.drinking, current.smoking,
+                     ht, wt.current, wt.pre, pct.wt.loss.3mth, bmi, bmi.cat, 
+                     ecog, ecog.cat, dead, ct.to.os.weeks)
+
+  data_frame(Variable = name.1(descript),
+             Missing   = n.miss(descript),
+             "Mean SD" = summary.1(descript),
+             "Median [IQR]" = med.iqr(descript),
+             "(Min, Max)" = min.max(descript)) %>% knitr::kable()
+  
+```
+
+## Basic survival characteristics
+
+```{r basic_survfit}
+
+  library(pander)
+  pander(survfit(Surv(ct.to.os.weeks, dead2) ~ 1, data = test)) 
+
+```
+
+
+```{r, results = "asis"}
+
+  library(htmlTable)
+
+  group_by(data, rater) %>% summarise(n = n()) %>%
+     summarise(mean =    mean(n),
+                min =    min(n),
+                max =    max(n),
+                lq =     quantile(n, 0.25),
+                median = quantile(n, 0.50),
+                uq =     quantile(n, 0.70)) %>% 
+     htmlTable(header = c("Mean", "Min", "Max", "25th centile", "Median", 
+                          "75th centile"), rnames = FALSE, 
+               align = "c",
+               css.cell = "padding-left: 2em; padding-right: 2em;", 
+               caption = "Distribution of the number of applicants per rater")
+```
+
+
+```{r}
+
+  table.1.var <- select(data, arm, age, gender, prehospitalanalgesia, 
+                        clinical_presentation, b_clinical_presentation)
+
+  m <- filter(table.1.var, arm == "Morphine") %>% select(-arm)
+  f <- filter(table.1.var, arm == "Fentanyl") %>% select(-arm)
+
+  
+  data_frame("Variable" = name.1(select(table.1.var, -arm)),
+             "Observations" = as.numeric(n.miss(select(table.1.var, -arm))),
+             "Total (n = 30)"    = summary.2(select(table.1.var, -arm)),
+             "Morphine (n = 16)" = summary.2(m),
+             "Fentanyl (n = 14)" = summary.2(f),
+             "Test p-value" = tests.2(table.1.var)[-c(1:3)]) %>% 
+    knitr::kable()
+
+
+  
+  
+```
