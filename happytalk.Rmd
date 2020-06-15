@@ -22,60 +22,106 @@ output:
   library(flextable)
   library(sjPlot)
   library(sjmisc)
+  library(rms)
+  library(Hmisc)
+  
 
 ```
+
+# Overview
 
 **Original request:**
 
-I have attached a rough draft of the methodology for the Happy Talk study with some research questions which hopefully will help make sense of the data. 
-I have put in the following questions and highlighted the outcomes. In some places there is an option to use just one outcome or to add in another. I don’t know if our numbers allow for a second outcome in some of these places, so statistically you might not advise it. 
+*I have attached a rough draft of the methodology for the Happy Talk study with some research questions which hopefully will help make sense of the data. *
 
-Research questions – Following completion of the Happy Talk programme
+*I have put in the following questions and highlighted the outcomes. In some places there is an option to use just one outcome or to add in another. I don’t know if our numbers allow for a second outcome in some of these places, so statistically you might not advise it.*
 
-- Based on the PLS-5 composite scores, did the receptive and or expressive language of children from disadvantaged areas improve, when compared to a control group over the same period of time? PLS-5 outcomes
+*Research questions – Following completion of the Happy Talk programme*
 
-- Using the PedsQL and CHU9D, did children’s quality of life improve compared to a control group of children from similar backgrounds, who did not complete the programme? PEDsQL total score and then composites?
+*- Based on the PLS-5 composite scores, did the receptive and or expressive language of children from disadvantaged areas improve, when compared to a control group over the same period of time? PLS-5 outcomes*
 
-- Using the Detailed Code of Responsiveness, did parents increase their level of responsiveness when playing with their children, compared to a control group of parents who did not complete the programme? Rate per minute outcome and total number as a possible second for PedsQL
+*- Using the PedsQL and CHU9D, did children’s quality of life improve compared to a control group of children from similar backgrounds, who did not complete the programme? PEDsQL total score and then composites?*
 
-- When measured using the Communication Supporting Classroom Observation Tool (CSCOT) has the oral language environment of preschools increased when compared to control preschools in similar areas catering for a similar demographic. CSCOT score outcome
-```{r}
+*- Using the Detailed Code of Responsiveness, did parents increase their level of responsiveness when playing with their children, compared to a control group of parents who did not complete the programme? Rate per minute outcome and total number as a possible second for PedsQL* 
 
 
 
-```
+*- When measured using the Communication Supporting Classroom Observation Tool (CSCOT) has the oral language environment of preschools increased when compared to control preschools in similar areas catering for a similar demographic. CSCOT score outcome*
+**Note: n = 4. There really isn't an analysis possible here.** 
 
-There are also some other questions for example whether attendance rates (which I think were quite poor) had any impact on the child language or parent video outcomes – but again I know that some of this will depend on what is possible given our numbers.
+
+**Note: The following two questions can not be usefully answered with these data.** 
+
+*- Are attendance rates associated with differential intervention outcome effects?*
+
+*- Examining the influences of moderating or mediating influences on children’s intervention effects.*
+
 
 # PLS-5
 
-- Based on the PLS-5 composite scores, did the receptive and or expressive language of children from disadvantaged areas improve, when compared to a control group over the same period of time? PLS-5 outcomes
+This section answers the following: *Based on the PLS-5 composite scores, did the receptive and or expressive language of children from disadvantaged areas improve, when compared to a control group over the same period of time? PLS-5 outcomes*
 
 ## PLS-5-AC
 
+Figure. Individual level change in PLS-5-AC by study arm. 
+
+```{r plot_code}
+
+  dist_plot <- function(var, lab){
+    ggplot(long, aes_string(y = var, x = "time", group = "code", color = "arm", 
+                            fill = "arm")) +
+      geom_line(alpha = 0.5, color = "white", linetype = "dotted") +
+      geom_smooth(aes(group = arm), 
+                 method = "lm", se = FALSE, color = "white", size = 2) +
+      geom_point(position = position_jitter(width = 0.01), size = 3, 
+                 alpha = 0.6, 
+                 color = "white") +
+      geom_boxplot(data = filter(long, time == "Pre"), 
+                   aes(group = time), alpha = 0.8, color = "white", 
+                   outlier.shape = NA, width = 0.2, 
+                   position = position_nudge(x = -0.25)) +
+      geom_boxplot(data = filter(long, time == "Post"), 
+                     aes(group = time), alpha = 0.8, color = "white", 
+                     outlier.shape = NA, width = 0.2, 
+                     position = position_nudge(x = 0.25)) +
+    # geom_flat_violin(aes(group = time), alpha = 0.2, 
+    #                  adjust = 1, trim = TRUE, color = NA) + 
+      geom_violin(data = filter(long, time == "Post"),
+                  aes(group = time), alpha = 0.3, 
+                  adjust = 1, trim = TRUE, color = NA, 
+                  scale = "count", width = 0.3,
+                  position = position_nudge(x = 0.25)) + 
+      geom_violin(data = filter(long, time == "Pre"),
+                  aes(group = time), alpha = 0.3, 
+                  adjust = 1, trim = TRUE, color = NA, 
+                  scale = "count", width = 0.3,
+                  position = position_nudge(x = -0.25)) + 
+      facet_wrap(~arm) +
+      scale_fill_viridis(guide = FALSE, discrete = TRUE, begin = 0.5, 
+                         end = 0.8, option = "inferno", direction = -1) +
+      scale_color_viridis(guide = FALSE, discrete = TRUE, begin = 0.5, 
+                          end = 0.8, option = "inferno", direction = -1) +
+      xlab("") +
+      ylab(lab) +
+      theme(panel.background = element_rect(fill = "grey20"), 
+            panel.grid = element_blank(), 
+            strip.background = element_rect(fill = "grey20"), 
+            strip.text = element_text(color = "white")) %>%
+    return()
+  }
+
+```
+
+
+
 ```{r pls5_ac_line}
 
-  ggplot(long, aes(y = pls5_ac, x = time, group = code, color = arm)) +
-    geom_line() +
-    facet_wrap(~arm) +
-    scale_color_viridis("", discrete = TRUE, end = 0.5) +
-    xlab("") +
-    ylab("PLS-5 AC")
+  dist_plot("pls5_ac", "PLS-5 AC")
 
 ```
 
-```{r pls5_ac_density}
 
-  ggplot(long, aes(x = pls5_ac, fill = time, color = time)) +
-    geom_density(alpha = 0.5, color = "black") +
-    geom_rug(size = 2, alpha = 0.5) +
-    facet_wrap(~arm, nrow = 2) +
-    scale_fill_viridis("", discrete = TRUE, end = 0.5) +
-    scale_color_viridis("", discrete = TRUE, end = 0.5) +
-    ylab("Density") +
-    xlab("PLS-5 AC")
-
-```
+Table. Estimated effect of the intervention on PLS-5-AC scores.
 ```{r pls5_ac_models}
 
 # baseline adjusted
@@ -88,7 +134,7 @@ There are also some other questions for example whether attendance rates (which 
  
   tab_model(
     list(pls5_ac_m1, pls5_ac_m2),
-    dv.labels = c("Basline adjusted", "Covariate adjusted"),
+    dv.labels = c("Baseline adjusted", "Covariate adjusted"),
     pred.labels = c("Intercept", "Active (vs Control)", "Baseline PLS-5-AC", 
                     "Age (m)", "Previous SLT (vs None)")
     )
@@ -98,30 +144,14 @@ There are also some other questions for example whether attendance rates (which 
 
 ## PLS-5-ES
 
+Figure. Individual level change in PLS-5-ES by study arm. 
 ```{r pls5_es_line}
 
-  ggplot(long, aes(y = pls5_es, x = time, group = code, color = arm)) +
-    geom_line() +
-    facet_wrap(~arm) +
-    scale_color_viridis("", discrete = TRUE, end = 0.5) +
-    xlab("") +
-    ylab("PLS-5 ES")
+  dist_plot("pls5_es", "PLS-5 ES")
 
 ```
 
-```{r pls5_es_density}
-
-  ggplot(long, aes(x = pls5_es, fill = time, color = time)) +
-    geom_density(alpha = 0.5, color = "black") +
-    geom_rug(size = 2, alpha = 0.5) +
-    facet_wrap(~arm, nrow = 2) +
-    scale_fill_viridis("", discrete = TRUE, end = 0.5) +
-    scale_color_viridis("", discrete = TRUE, end = 0.5) +
-    ylab("Density") +
-    xlab("PLS-5 ES")
-
-```
-
+Table. Estimated effect of the intervention on PLS-5-ES scores.
 ```{r pls5_es_models}
 
 # baseline adjusted
@@ -134,7 +164,7 @@ There are also some other questions for example whether attendance rates (which 
  
   tab_model(
     list(pls5_es_m1, pls5_es_m2),
-    dv.labels = c("Basline adjusted", "Covariate adjusted"),
+    dv.labels = c("Baseline adjusted", "Covariate adjusted"),
     pred.labels = c("Intercept", "Active (vs Control)", "Baseline PLS-5-ES", 
                     "Age (m)", "Previous SLT (vs None)")
     )
@@ -145,30 +175,15 @@ There are also some other questions for example whether attendance rates (which 
 
 ## PLS-5-Total
 
+Figure. Individual level change in PLS-5-Total by study arm. 
 ```{r pls5_to_line}
 
-  ggplot(long, aes(y = pls5_to, x = time, group = code, color = arm)) +
-    geom_line() +
-    facet_wrap(~arm) +
-    scale_color_viridis("", discrete = TRUE, end = 0.5) +
-    xlab("") +
-    ylab("PLS-5 Total")
+  dist_plot("pls5_to", "PLS-5-Total")
 
 ```
 
-```{r pls5_to_density}
 
-  ggplot(long, aes(x = pls5_to, fill = time, color = time)) +
-    geom_density(alpha = 0.5, color = "black") +
-    geom_rug(size = 2, alpha = 0.5) +
-    facet_wrap(~arm, nrow = 2) +
-    scale_fill_viridis("", discrete = TRUE, end = 0.5) +
-    scale_color_viridis("", discrete = TRUE, end = 0.5) +
-    ylab("Density") +
-    xlab("PLS-5 Total")
-
-```
-
+Table. Estimated effect of the intervention on PLS-5-Total scores.
 ```{r pls5_to_models}
 
 # baseline adjusted
@@ -181,10 +196,385 @@ There are also some other questions for example whether attendance rates (which 
  
   tab_model(
     list(pls5_to_m1, pls5_to_m2),
-    dv.labels = c("Basline adjusted", "Covariate adjusted"),
-    pred.labels = c("Intercept", "Active (vs Control)", "Baseline PLS-5-ES", 
+    dv.labels = c("Baseline adjusted", "Covariate adjusted"),
+    pred.labels = c("Intercept", "Active (vs Control)", "Baseline PLS-5-Total", 
                     "Age (m)", "Previous SLT (vs None)")
     )
+  
+```
+
+# QOL
+
+This section answers the following: 
+
+*- Using the PedsQL and CHU9D, did children’s quality of life improve compared to a control group of children from similar backgrounds, who did not complete the programme? PEDsQL total score and then composites?*
+
+## PEDsQL-Psychosocial
+
+Figure. Individual level change in PEDsQL-Psychosocial scores by study arm. 
+```{r pedsql_ps_line}
+
+  dist_plot("peds_psychosocial", "PEDsQL-Psychosocial")
+
+```
+
+Table. Estimated effect of the intervention on PEDsQL-Psychosocial scores.
+```{r pedsql_ps_models}
+
+# baseline adjusted
+  pedsql_ps_m1 <- orm(post_peds_psychosocial ~ arm +
+                        center(peds_psychosocial_pre), 
+                    data = data) 
+
+# Plus age and slt
+  pedsql_ps_m2 <- orm(post_peds_psychosocial ~ arm +
+                        center(peds_psychosocial_pre) + 
+                        center(age_in_months) + previous_slt_involvement, 
+                    data = data) 
+
+  options(prType="html")
+   
+  print(pedsql_ps_m1)
+ 
+  print(pedsql_ps_m2)
+
+  
+```
+
+## PEDsQL-Physical
+
+Figure. Individual level change in PEDsQL-Physical scores by study arm. 
+```{r pedsql_ph_line}
+
+  dist_plot("peds_physical", "PEDsQL-Physical")
+
+```
+
+
+Table. Estimated effect of the intervention on PEDsQL-Physical scores.
+```{r pedsql_ph_models}
+
+# baseline adjusted
+  pedsql_ph_m1 <- orm(post_peds_physical ~ arm +
+                        center(peds_physical_pre), 
+                    data = data) 
+
+# Plus age and slt
+  pedsql_ph_m2 <- orm(post_peds_physical ~ arm +
+                        center(peds_physical_pre) + 
+                        center(age_in_months) + previous_slt_involvement, 
+                    data = data) 
+
+  options(prType="html")
+   
+  print(pedsql_ph_m1)
+ 
+  print(pedsql_ph_m2)
+
+  
+```
+
+## PEDsQL-Total
+
+Figure. Individual level change in PEDsQL-Total scores by study arm. 
+```{r pedsql_to_line}
+
+  dist_plot("peds_tot", "PEDsQL-Total")
+
+```
+
+
+
+Table. Estimated effect of the intervention on PEDsQL-Total scores.
+```{r pedsql_to_models}
+
+# baseline adjusted
+  pedsql_to_m1 <- orm(post_peds_tot ~ arm +
+                        center(peds_tot_pre), 
+                    data = data) 
+
+# Plus age and slt
+  pedsql_to_m2 <- orm(post_peds_tot ~ arm +
+                        center(peds_tot_pre) + 
+                        center(age_in_months) + previous_slt_involvement, 
+                    data = data) 
+
+  options(prType="html")
+   
+  print(pedsql_to_m1)
+ 
+  print(pedsql_to_m2)
+
+  
+```
+
+## CHU9D-Total
+
+Figure. Individual level change in CHU9D-Total scores by study arm. 
+```{r chu9d_to_line}
+
+  dist_plot("chu9d_tot", "CHU9D-Total")
+
+```
+
+
+Table. Estimated effect of the intervention on PEDsQL-Total scores.
+```{r chu9d_to_models}
+
+# baseline adjusted
+  chu9d_to_m1 <- orm(post_chu9d_tot ~ arm +
+                        center(chu9d_tot_pre), 
+                    data = data) 
+
+# Plus age and slt
+  chu9d_to_m2 <- orm(post_chu9d_tot ~ arm +
+                        center(chu9d_tot_pre) + 
+                        center(age_in_months) + previous_slt_involvement, 
+                    data = data) 
+
+  options(prType="html")
+   
+  print(chu9d_to_m1)
+ 
+  print(chu9d_to_m2)
+
+  
+```
+
+
+# Responsiveness
+
+This section answers the following: 
+
+*- Using the Detailed Code of Responsiveness, did parents increase their level of responsiveness when playing with their children, compared to a control group of parents who did not complete the programme? Rate per minute outcome and total number as a possible second for PedsQL*
+
+## Expansions
+
+Figure. Individual level change in Expansions by study arm. 
+```{r exp_line}
+
+  dist_plot("res_exp", "Expansions")
+
+```
+
+
+Table. Estimated effect of the intervention on Expansions.
+```{r expansion_models}
+
+# baseline adjusted
+  res_exp_m1 <- lm(res_exp_post ~ arm + center(res_exp_pre), 
+                    data = data) 
+
+# Plus age and slt
+  res_exp_m2 <- lm(res_exp_post ~ arm + center(res_exp_pre) + 
+                     center(age_in_months) + previous_slt_involvement, 
+                   data = data) 
+
+  tab_model(
+    list(res_exp_m1, res_exp_m2),
+    dv.labels = c("Baseline adjusted", "Covariate adjusted"),
+    pred.labels = c("Intercept", "Active (vs Control)", "Baseline Expansions", 
+                    "Age (m)", "Previous SLT (vs None)")
+    )
+
+  
+```
+
+
+## Imitations
+
+Figure. Individual level change in Imitations by study arm. 
+```{r im_line}
+
+  dist_plot("res_im", "Imitations")
+
+```
+
+
+Table. Estimated effect of the intervention on Imitations.
+```{r imitations_models}
+
+# baseline adjusted
+  res_im_m1 <- lm(res_im_post ~ arm + center(res_im_pre), 
+                    data = data) 
+
+# Plus age and slt
+  res_im_m2 <- lm(res_im_post ~ arm + center(res_im_pre) + 
+                     center(age_in_months) + previous_slt_involvement, 
+                   data = data) 
+
+  tab_model(
+    list(res_im_m1, res_im_m2),
+    dv.labels = c("Baseline adjusted", "Covariate adjusted"),
+    pred.labels = c("Intercept", "Active (vs Control)", "Baseline Imitations", 
+                    "Age (m)", "Previous SLT (vs None)")
+    )
+
+  
+```
+
+
+## Responsive Questions
+
+Figure. Individual level change in Responsive Questions by study arm. 
+```{r responsive_line}
+
+  dist_plot("res_res", "Responsive Questions")
+
+```
+
+
+Table. Estimated effect of the intervention on Responsive Questions.
+```{r responsive_models}
+
+# baseline adjusted
+  res_res_m1 <- lm(res_res_post ~ arm + center(res_res_pre), 
+                    data = data) 
+
+# Plus age and slt
+  res_res_m2 <- lm(res_res_post ~ arm + center(res_res_pre) + 
+                     center(age_in_months) + previous_slt_involvement, 
+                   data = data) 
+
+  tab_model(
+    list(res_res_m1, res_res_m2),
+    dv.labels = c("Baseline adjusted", "Covariate adjusted"),
+    pred.labels = c("Intercept", "Active (vs Control)", 
+                    "Baseline Responsive Questions", 
+                    "Age (m)", "Previous SLT (vs None)")
+    )
+
+  
+```
+
+## Labels
+
+Figure. Individual level change in Labels by study arm. 
+```{r label_line}
+
+  dist_plot("res_label", "Labels")
+
+```
+
+
+Table. Estimated effect of the intervention on Labels.
+```{r labels_models}
+
+# baseline adjusted
+  res_label_m1 <- lm(res_label_post ~ arm + center(res_label_pre), 
+                    data = data) 
+
+# Plus age and slt
+  res_label_m2 <- lm(res_label_post ~ arm + center(res_label_pre) + 
+                     center(age_in_months) + previous_slt_involvement, 
+                   data = data) 
+
+  tab_model(
+    list(res_label_m1, res_label_m2),
+    dv.labels = c("Baseline adjusted", "Covariate adjusted"),
+    pred.labels = c("Intercept", "Active (vs Control)", "Baseline Labels", 
+                    "Age (m)", "Previous SLT (vs None)")
+    )
+
+  
+```
+
+## Responsiveness Total
+
+Figure. Individual level change in Responsiveness Total by study arm. 
+```{r total_line}
+
+  dist_plot("res_total", "Responsiveness Total")
+
+```
+
+
+Table. Estimated effect of the intervention on Responsiveness Total.
+```{r total_models}
+
+# baseline adjusted
+  res_total_m1 <- lm(res_total_post ~ arm + center(res_total_pre), 
+                    data = data) 
+
+# Plus age and slt
+  res_total_m2 <- lm(res_total_post ~ arm + center(res_total_pre) + 
+                     center(age_in_months) + previous_slt_involvement, 
+                   data = data) 
+
+  tab_model(
+    list(res_total_m1, res_total_m2),
+    dv.labels = c("Baseline adjusted", "Covariate adjusted"),
+    pred.labels = c("Intercept", "Active (vs Control)", 
+                    "Baseline Responsiveness Total", 
+                    "Age (m)", "Previous SLT (vs None)")
+    )
+
+  
+```
+
+## Responsiveness Rate
+
+Figure. Individual level change in Responsiveness Rate by study arm. 
+```{r rate_line}
+
+  dist_plot("res_rate", "Responsiveness Rate")
+
+```
+
+
+Table. Estimated effect of the intervention on Responsiveness Total.
+```{r rate_models}
+
+# baseline adjusted
+  res_rate_m1 <- lm(res_rate_post ~ arm + center(res_rate_pre), 
+                    data = data) 
+
+# Plus age and slt
+  res_rate_m2 <- lm(res_rate_post ~ arm + center(res_rate_pre) + 
+                     center(age_in_months) + previous_slt_involvement, 
+                   data = data) 
+
+  tab_model(
+    list(res_rate_m1, res_rate_m2),
+    dv.labels = c("Baseline adjusted", "Covariate adjusted"),
+    pred.labels = c("Intercept", "Active (vs Control)", 
+                    "Baseline Responsiveness Total", 
+                    "Age (m)", "Previous SLT (vs None)")
+    )
+  
+```
+
+
+## PaRRiS
+
+Figure. Individual level change in PaRRiS by study arm. 
+```{r parris_line}
+
+  dist_plot("parris", "PaRRiS")
+
+```
+
+
+Table. Estimated effect of the intervention on PaRRiS.
+```{r parris_models}
+
+# baseline adjusted
+  parris_m1 <- lm(parris_post ~ arm + center(parris_pre), 
+                    data = data) 
+
+# Plus age and slt
+  parris_m2 <- lm(parris_post ~ arm + center(parris_pre) + 
+                     center(age_in_months) + previous_slt_involvement, 
+                   data = data) 
+
+  tab_model(
+    list(parris_m1, parris_m2),
+    dv.labels = c("Baseline adjusted", "Covariate adjusted"),
+    pred.labels = c("Intercept", "Active (vs Control)", 
+                    "Baseline PaRRiS", 
+                    "Age (m)", "Previous SLT (vs None)")
+    )
+
   
 ```
 
